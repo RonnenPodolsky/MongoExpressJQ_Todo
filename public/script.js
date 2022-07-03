@@ -1,33 +1,36 @@
 $(document).ready(async () => {
     const todos = await $.getJSON('/todos/api');
-    showTodos(todos)
+    showTodosFromDB(todos)
+
 
     $('.todo-list').on('click', '.text', function() {
-        updateTodo($(this));
+        updateTodoCompletion($(this));
+    })
+
+    $('.todo-list').on('click', '.edit', function() {
+        editTodoText($(this).parent());
     })
 
     $('.todo-list').on('click', '.delete', function() {
         removeTodo($(this).parent());
     })
 
-    $('.todo-list').on('click', '.edit', function() {
-        editTodo($(this));
-    })
-
     $('.input-form').on('submit', e => {
         e.preventDefault();
+
         if ($('.input-field').val()) { createTodo(); }
         else { alert('please insert text'); }
+
         $('.input-field').focus();
     })
 
-    $('.search-field').on('keyup', function(e) {
+    $('.search-input').on('keyup', function(e) {
         searchTodos($(this));
     })
 
 })
 
-const showTodos = todos => {
+const showTodosFromDB = todos => {
     for (let item of todos){
         showTodo(item)
     }
@@ -41,7 +44,7 @@ const showTodo = todo => {
     elem.data('isCompleted', todo.isCompleted)
 }
 
-const updateTodo = async elem => {
+const updateTodoCompletion = async elem => {
     const endpoint = `/todos/api/${elem.parent().data('id')}`;
     const updateTodo = await fetch(endpoint, {
         method: 'PUT',
@@ -58,22 +61,24 @@ const updateTodo = async elem => {
     .catch(error => console.log(error))
 }
 
-const editTodo = async elem =>{
+const editTodoText = async elem => {
     let newText = prompt("change to: ");
-    if (newText === null || newText === ''){ return }
+    
+    if (newText === null) {return}
+    if (newText === '') {return}
 
-    const endpoint = `/todos/api/${elem.parent().data('id')}`;
+    const endpoint = `/todos/api/${elem.data('id')}`;
     const updateTodo = await fetch(endpoint, {
         method: 'PUT',
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify(
-            { text: newText}
+            {text: newText}
         )
     })
     .then(response => {
-        elem.parent().children('.text').text(newText)
+        elem.children('.text').text(newText)
     })
     .catch(error => console.log(error))
 }
@@ -120,6 +125,6 @@ const searchTodos = async elem => {
     })
 
     $('.todo-list').text('')
-    showTodos(filtered)
-    $('.search-field').focus()
+    showTodosFromDB(filtered)
+    $('.search-input').focus()
 }
