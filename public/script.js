@@ -54,8 +54,8 @@ const showSingleTodo = todo => {
                         <span class="delete">x</span>
                   </li>`)
     $('.todo-list').prepend(elem);
-    elem.data('id', todo._id)
-    elem.data('isCompleted', todo.isCompleted)
+    elem.data('id', todo._id);
+    elem.data('isCompleted', todo.isCompleted);
 }
 
 const updateTodoCompletion = async elem => {
@@ -78,9 +78,7 @@ const updateTodoCompletion = async elem => {
 
 const editTodoText = async elem => {
     let newText = prompt("change to: ");
-    
-    if (newText === null) {return}
-    if (newText === '') {return}
+    if (!newText.trim()) {return}
 
     const endpoint = `/todos/api/${elem.data('id')}`;
     const updateTodo = await fetch(endpoint, {
@@ -92,9 +90,7 @@ const editTodoText = async elem => {
             {text: newText}
         )
     })
-    .then(response => {
-        elem.children('.text').text(newText);
-    })
+    .then(response => elem.children('.text').text(newText))
     .catch(error => console.log(error))
 }
 
@@ -106,9 +102,7 @@ const removeTodo = async elem => {
             'Content-type': 'application/json'
         }
     })
-    .then(response => {
-        elem.remove();
-    })
+    .then(response => elem.remove())
     .catch(error => console.log(error))
 }
 
@@ -125,21 +119,20 @@ const createTodo = async () => {
         )
     })
     const responseText = await createdTodo.json();
-    showSingleTodo(responseText)
+    showSingleTodo(responseText);
 
-    $('.input-field').val('')
-    $('.input-field').focus()
+    $('.input-field').val('');
+    $('.input-field').focus();
 }
 
 const searchTodos = async elem => {
-    searchedTerm = elem.val().toLowerCase();
+    searchedTerm = elem.val().toLowerCase().trim();
 
     const todos = await $.getJSON('/todos/api');
-    const filtered = todos.filter(element => {
-         return element.text.toLowerCase().includes(searchedTerm) // empty string "" always returns true so when deleting the term keeps all items from the original todos array
-    })
-
-    $('.todo-list').text('')
-    showTodosFromDB(filtered)
-    $('.search-input').focus()
+    const filtered = todos.filter(element => element.text.toLowerCase().includes(searchedTerm))
+    // empty string "" always returns true in includes so when deleting the term keeps all items from the original todos array
+    
+    $('.todo-list').text('');
+    showTodosFromDB(filtered);
+    $('.search-input').focus();
 }
