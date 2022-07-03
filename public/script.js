@@ -1,10 +1,17 @@
 $(document).ready(async () => {
-    const todos = await $.getJSON('/todos/api');
+    const todos = await $.getJSON('/todos/api'); // array of objects from the DB
+    // same as:
+    // const todos = await fetch('/todos/api', {
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-type': 'application/json'
+    //     }
+    // })
+    // const todos_array = await todos.json();
     showTodosFromDB(todos)
 
-
     $('.todo-list').on('click', '.text', function() {
-        updateTodoCompletion($(this));
+        updateTodoCompletion($(this).parent());
     })
 
     $('.todo-list').on('click', '.edit', function() {
@@ -15,48 +22,56 @@ $(document).ready(async () => {
         removeTodo($(this).parent());
     })
 
-    $('.input-form').on('submit', e => {
-        e.preventDefault();
-
-        if ($('.input-field').val()) { createTodo(); }
-        else { alert('please insert text'); }
-
-        $('.input-field').focus();
-    })
-
     $('.search-input').on('keyup', function(e) {
         searchTodos($(this));
     })
 
+    $('.input-form').on('submit', e => {
+        e.preventDefault();
+
+        if (!$('.input-field').val()) { // inserted todo is empty
+            alert('please do insert text');
+            $('.input-field').focus();
+            return;
+        }
+
+        createTodo(); 
+        $('.input-field').focus();
+    })
 })
 
 const showTodosFromDB = todos => {
     for (let item of todos){
-        showTodo(item)
+        showSingleTodo(item)
     }
     $('.input-field').focus();
 }
 
-const showTodo = todo => {
-    let elem = $(`<li><span class="text ${ todo.isCompleted ? 'completed' : 'notcompleted'}">${todo.text}</span><span class="edit">edit</span><span class="delete"> x</span></li>`)
+const showSingleTodo = todo => {
+    let elem = $(`<li>
+                        <span class="text ${ todo.isCompleted ? 'completed' : ''}">${todo.text}</span>
+                        <span class="edit">edit</span>
+                        <span class="delete">x</span>
+                  </li>`)
     $('.todo-list').prepend(elem);
     elem.data('id', todo._id)
     elem.data('isCompleted', todo.isCompleted)
 }
 
 const updateTodoCompletion = async elem => {
-    const endpoint = `/todos/api/${elem.parent().data('id')}`;
+    const endpoint = `/todos/api/${elem.data('id')}`;
     const updateTodo = await fetch(endpoint, {
         method: 'PUT',
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify(
-            { isCompleted: !elem.parent().data('isCompleted')}
+            { isCompleted: !elem.data('isCompleted')}
         )
     })
     .then(response => {
-        elem.toggleClass('completed')
+        elem.children('.text').toggleClass('completed')
+        elem.data('isCompleted', !elem.data('isCompleted'));
     })
     .catch(error => console.log(error))
 }
@@ -78,7 +93,7 @@ const editTodoText = async elem => {
         )
     })
     .then(response => {
-        elem.children('.text').text(newText)
+        elem.children('.text').text(newText);
     })
     .catch(error => console.log(error))
 }
@@ -99,9 +114,8 @@ const removeTodo = async elem => {
 
 const createTodo = async () => {
     const userInput = $('.input-field').val();
-    const endpoint = '/todos/api/';
 
-    const createdTodo = await fetch(endpoint, {
+    const createdTodo = await fetch('/todos/api/', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -111,9 +125,10 @@ const createTodo = async () => {
         )
     })
     const responseText = await createdTodo.json();
+    showSingleTodo(responseText)
+
     $('.input-field').val('')
     $('.input-field').focus()
-    showTodo(responseText)
 }
 
 const searchTodos = async elem => {

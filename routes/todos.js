@@ -3,7 +3,7 @@ const router = express.Router();
 const Todo = require('../models/Todo')
 
 router.get('/api', async (req, res) => {
-    const todos = await Todo.find()
+    const todos = await Todo.find() // returns array of objects from the collection
     res.send(todos)
 })
 
