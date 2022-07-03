@@ -5,7 +5,7 @@
 https://localhost:5600
 
 <br /> 
-https://localhost:5600/todos/api for array of current todos in db
+http://localhost:5600/todos/api for array of current todos in db
 
 
 <br /> 
