@@ -2,7 +2,7 @@
 <br /> 
 'node server' to run (or use nodemon)
 <br /> 
-https://localhost:5600
+http://localhost:5600
 
 <br /> 
 http://localhost:5600/todos/api for array of current todos in db
