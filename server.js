@@ -13,7 +13,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
     console.log('connected to db')
     app.listen(process.env.PORT || 5600, () => console.log('server running'));
     })
-    // process.env.PORT allows services like heroku run the server with their port, or the user to run PORT=XYZW node index.js and run it with a selected port
+    // process.env.PORT allows services like heroku run the server with their port, or the user to run 'PORT=XYZW node server' and run it with a selected port
   .catch(error => {
     console.log(error)
   })
